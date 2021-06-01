@@ -18,7 +18,7 @@ namespace Slic3r {
 //! macro used to mark string used at localization,
 //! return same string
 #define L(s) (s)
-#define _(s) Slic3r::I18N::translate(s)
+//#define _(s) Slic3r::I18N::translate(s)
 
 static void assign_printer_technology_to_unknown(t_optiondef_map &options, PrinterTechnology printer_technology)
 {
@@ -2598,9 +2598,9 @@ void PrintConfigDef::init_fff_params()
     def->set_default_value(new ConfigOptionInts{ 35 });
 
     def = this->add("fan_percentage", coBool);
-    def->label = _("Fan PWM from 0-100");
+    def->label = L("Fan PWM from 0-100");
     def->category = OptionCategory::output;
-    def->tooltip = _("Set this if your printer uses control values from 0-100 instead of 0-255.");
+    def->tooltip = L("Set this if your printer uses control values from 0-100 instead of 0-255.");
     def->cli = "fan-percentage";
     def->mode = comAdvanced;
     def->set_default_value(new ConfigOptionBool(false));
@@ -2688,11 +2688,13 @@ void PrintConfigDef::init_fff_params()
     def->enum_values.push_back("flashair");
     def->enum_values.push_back("astrobox");
     def->enum_values.push_back("repetier");
+    def->enum_values.push_back("klipper");
     def->enum_labels.push_back("OctoPrint");
     def->enum_labels.push_back("Duet");
     def->enum_labels.push_back("FlashAir");
     def->enum_labels.push_back("AstroBox");
     def->enum_labels.push_back("Repetier");
+    def->enum_labels.push_back("Klipper");
     def->mode = comAdvanced;
     def->set_default_value(new ConfigOptionEnum<PrintHostType>(htOctoPrint));
 
@@ -5237,7 +5239,8 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
     } else if (opt_key == "z_steps_per_mm") {
         opt_key = "z_step";
         float v = boost::lexical_cast<float>(value);
-        value = boost::lexical_cast<std::string>(1/v);
+        if(v > 0)
+            value = boost::lexical_cast<std::string>(1/v);
     } else if (opt_key == "infill_not_connected") {
         opt_key = "infill_connection";
         if (value == "1")
